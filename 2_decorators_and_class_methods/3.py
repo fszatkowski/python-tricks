@@ -1,26 +1,58 @@
-# @property can also be used to simulate encapsulation in a weird way
+# @property is a descriptor
+# Descriptors are objects implementing methods from descriptor protocol:
+# - __get__(self, obj, type=None) -> object
+# - __set__(self, obj, value) -> None
+# - __delete__(self, obj) -> None
 
 
-class EncapsulatedClass:
-    def __init__(self, public_field: int, private_field: int):
-        self._public = public_field
-        self._private = private_field
+# Lets create descriptor object
+class PositiveInt:
+    # Using name allows us to access instance attributes
+    def __init__(self, name: str):
+        self.name = name
 
-    @property
-    def public(self) -> int:
-        return self._public
+    def __get__(self, instance, cls):
+        return instance.__dict__[self.name]
 
-    @public.setter
-    def public(self, value: int):
-        if value > 0:
-            self._public = value
+    def __set__(self, instance, value):
+        if isinstance(value, int) and value > 0:
+            instance.__dict__[self.name] = value
         else:
-            raise ValueError("Value must be positive")
+            raise ValueError(
+                f"Cannot set value: {value}. Only positive values allowed"
+            )
+
+
+# To use descriptors, they have to be class attributes, not instance attributes
+# Descriptors can be also used to define class constants
+class PositiveVector:
+    x = PositiveInt("x")
+    y = PositiveInt("y")
+
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+    def __str__(self) -> str:
+        return f"Vector({self.x}, {self.y})"
+
+    def __repr__(self) -> str:
+        return str(self)
 
 
 if __name__ == "__main__":
-    enc = EncapsulatedClass(10, 100)
-    # Private field can still be accessed but it's highlighted
-    print(enc._private)
-    # Public field accessed through getter is cool
-    print(enc.public)
+    # Create vector
+    v1 = PositiveVector(1, 5)
+    print(f"v1: {v1}")
+
+    # Create second one and check if v1 was affected
+    v2 = PositiveVector(2, 3)
+    print(f"v1: {v1}")
+    print(f"v2: {v2}")
+
+    # Try to change values
+    try:
+        v1.x = 2
+        v1.y = -2
+    except Exception as e:
+        print(e)
