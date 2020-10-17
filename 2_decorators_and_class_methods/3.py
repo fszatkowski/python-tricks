@@ -18,9 +18,7 @@ class PositiveInt:
         if isinstance(value, int) and value > 0:
             instance.__dict__[self.name] = value
         else:
-            raise ValueError(
-                f"Cannot set value: {value}. Only positive values allowed"
-            )
+            raise ValueError(f"Cannot set value: {value}. Only positive values allowed")
 
 
 # To use descriptors, they have to be class attributes, not instance attributes

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 # Dataclass decorator creates init from passed list of arguments, but the resulting class can also define methods
 # To declare parameters with default values, add them after other parameters without default value
+# Dataclasses implement __repr__ and __eq__
 # If more advanced logic is needed when creating dataclass, we can use __post_init__ magic method
 
 

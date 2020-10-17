@@ -1,69 +1,40 @@
-from typing import List
-
-# Class methods allow for creation of factory classes
-# Assume we have multiple types of settings who inherit from TrainSettings
-class TrainSettings:
-    def __init__(self, lr: float, epochs: int):
-        self.lr = lr
-        self.epochs = epochs
+# @classmethod decorator works similarly to @staticmethod, but also accepts class as an argument
+# so it can be used to create factory methods
+# both staticmethods and classmethods are inherited
 
 
-class RNNSettings(TrainSettings):
-    def __init__(self, lr: float, epochs: int, cells: int):
-        super(RNNSettings, self).__init__(lr, epochs)
-        self.cells = cells
-
-
-class TransformerSettings(TrainSettings):
-    def __init__(self, lr: float, epochs: int, attention_heads: int):
-        super(TransformerSettings, self).__init__(lr, epochs)
-        self.att_heads = attention_heads
-
-
-# Now create base Model class and it's children
-class Model:
-    def __init__(self, settings: TrainSettings):
-        self.lr = settings.lr
-        self.epochs = settings.epochs
+class Baseclass:
+    def __init__(self, name):
+        self.name = name
 
     @classmethod
-    def from_settings(cls, settings: TrainSettings) -> "Model":
-        # cls here refers to the class on which the method was called
-        # child classes inherit this method and it calls their __init__
-        return cls(settings)
+    def greet(cls):
+        print(f"Hello, I am {cls.__name__}")
+
+    # Sometimes we might want to create objects in a different way, and class method is a good way to do it
+    @classmethod
+    def from_input(cls):
+        return cls(input())
+
+    def __repr__(self):
+        return f"Baseclass(name={self.name})"
 
 
-class RNN(Model):
-    def __init__(self, settings: RNNSettings):
-        super(RNN, self).__init__(settings)
-        self.cells = settings.cells
+class Subclass(Baseclass):
+    def __init__(self, name):
+        super().__init__(name)
 
-
-class Transformer(Model):
-    def __init__(self, settings: TransformerSettings):
-        super(Transformer, self).__init__(settings)
-        self.cells = settings.att_heads
+    def __repr__(self):
+        return f"Subclass(name={self.name})"
 
 
 if __name__ == "__main__":
-    # Given collection of settings, we can now automatically create models
-    settings_list: List[TrainSettings] = [
-        RNNSettings(0.001, 100, 200),
-        TransformerSettings(0.0001, 20, 6),
-        TransformerSettings(0.0001, 20, 120),
-    ]
-    models: List[Model] = []
-    for settings in settings_list:
-        if isinstance(settings, RNNSettings):
-            models.append(RNN.from_settings(settings))
-        else:
-            models.append(Transformer.from_settings(settings))
+    # Subclass inherits greet from Baseclass, but it's classmethod so it knows it's class (staticmethods don't)
+    Baseclass.greet()
+    Subclass.greet()
 
-    print(
-        "\n".join(
-            [
-                f"Model: {model.__class__}, attributes: {model.__dict__ }"
-                for model in models
-            ]
-        )
-    )
+    # Subclass inherits factory method (but requires some work to make it work)
+    instance = Baseclass.from_input()
+    print(instance)
+    sub_instance = Subclass.from_input()
+    print(sub_instance)
