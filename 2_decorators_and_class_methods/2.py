@@ -83,7 +83,5 @@ if __name__ == "__main__":
 
     # Delete color - deleter swaps _describe_fn
     print()
-    print(circle._describe_fn)
     del circle.color
     circle.describe()
-    print(circle._describe_fn)
